@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# This file is part of csdaily.
+# This file is part of CSDaily.
 
 # Copyright (C) 2018-present qytz <hhhhhf@foxmail.com>
 #
@@ -14,3 +14,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from .data import DataApp

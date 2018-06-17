@@ -14,11 +14,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""CSDaily命令行"""
+from .cli import CSDaily
 
-__title__ = 'CSDaily'
-__version__ = '0.0.1'
-__description__ = 'China Stock Daily report'
-__author__ = 'qytz'
-__author_email__ = 'hhhhhf@foxmail.com'
-__url__ = 'https://github.com/qytz/csdaily'
-__license__ = 'Apache License 2.0'
+
+if __name__ == "__main__":
+    CSDaily()
