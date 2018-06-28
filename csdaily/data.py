@@ -18,7 +18,7 @@ import os
 import time
 import asyncio
 import logging
-from datetime import date
+from datetime import datetime, date
 
 import aiohttp
 import pandas as pd
@@ -127,7 +127,8 @@ class DataApp(FinApp):
             pd.DataFrame()
         logger.info('download xueqiu daily quotes for %s finish', data_type)
         df = pd.DataFrame(quotes)
-        df['day'] = date.today()
+        # df['day'] = date.today()
+        df['day'] = datetime.now().replace(hour=16, minute=0, second=0, microsecond=0)
         # set index
         df.set_index(['symbol', 'day'], inplace=True)
         df.drop_duplicates(inplace=True)

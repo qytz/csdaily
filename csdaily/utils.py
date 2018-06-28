@@ -17,81 +17,59 @@
 import pandas as pd
 
 
-def filter_astocks_by_symbol(df):
-    """根据 symbol 过滤返回所有 A 股数据
+FILTER_DICT = {
+    'ASTOCKS': {    # A股
+        'SH': '^SH6',
+        'SZ': '^SZ00|^SZ30'
+        },
+    'BSTOCKS': {    # B股
+        'SH': '^SH9',
+        'SZ': '^SZ2'
+        },
+    'INDEX': {  # 指数
+        'SH': '^SH00',
+        'SZ': '^SZ399'
+        },
+    'ETF': {
+        'SH': '^SH51',
+        'SZ': '^SZ15|^SZ16'
+        },
+    'CB': { # 可转债
+        'SH': '^SH100|^SH110|^SSH112|^SH113',
+        'SZ': '^SZ12'
+        },
+    'ALL': {
+        'SH': '^SH',
+        'SZ': '^SZ'
+        }
+    }
+
+
+def filter_by_symbol(df, symbol_type='ALL', market='ALL'):
+    """根据 symbol 过滤返回符合条件的数据
 
     df 至少应包含 symbol 列，该列类型为字符串，内容规则如下：
 
         SHxxxxxx    上海股票交易所代码
         SZxxxxxx    深圳股票交易所代码
 
+    symbol_type: ASTOCKS/BSTOCKS/INDEX/ETF/CB/ALL
+        ASTOCKS: A股股票
+        BSTOCKS: B股股票
+        INDEX: 指数
+        ETF: ETF基金
+        CB: CONVERTIBLE BONDS，可转债
+    market: SZ/SH/ALL
+        SZ: 深圳股票交易所
+        SH: 上海股票交易所
+        ALL: 所有
     """
-    sha_df = df[df.symbol.str.startswith('SH6')]
-    sza_df = df[df.symbol.str.startswith('SZ00')]
-    cya_df = df[df.symbol.str.startswith('SZ30')]
-
-    return pd.concat([sha_df, sza_df, cya_df], axis=0)
-
-
-def filter_bstocks_by_symbol(df):
-    """根据 symbol 过滤返回所有 B 股数据
-
-    df 至少应包含 symbol 列，该列类型为字符串，内容规则如下：
-
-        SHxxxxxx    上海股票交易所代码
-        SZxxxxxx    深圳股票交易所代码
-
-    """
-    shb_df = df[df.symbol.str.startswith('SH9')]
-    szb_df = df[df.symbol.str.startswith('SZ2')]
-
-    return pd.concat([shb_df, szb_df], axis=0)
-
-
-def filter_index_by_symbol(df):
-    """根据 symbol 过滤返回所有指数数据
-
-    df 至少应包含 symbol 列，该列类型为字符串，内容规则如下：
-
-        SHxxxxxx    上海股票交易所代码
-        SZxxxxxx    深圳股票交易所代码
-
-    """
-    shindex_df = df[df.symbol.str.startswith('SH00')]
-    szindex_df = df[df.symbol.str.startswith('SZ399')]
-
-    return pd.concat([shindex_df, szindex_df], axis=0)
-
-
-def filter_etf_by_symbol(df):
-    """根据 symbol 过滤返回所有EFT数据
-
-    df 至少应包含 symbol 列，该列类型为字符串，内容规则如下：
-
-        SHxxxxxx    上海股票交易所代码
-        SZxxxxxx    深圳股票交易所代码
-
-    """
-    shetf_df = df[df.symbol.str.startswith('SH51')]
-    szetf1_df = df[df.symbol.str.startswith('SZ15')]
-    szetf2_df = df[df.symbol.str.startswith('SZ16')]
-
-    return pd.concat([shetf_df, szetf1_df, szetf2_df], axis=0)
-
-
-def filter_cb_by_symbol(df):
-    """根据 symbol 过滤返回所有可转债数据: Convertible bonds
-
-    df 至少应包含 symbol 列，该列类型为字符串，内容规则如下：
-
-        SHxxxxxx    上海股票交易所代码
-        SZxxxxxx    深圳股票交易所代码
-
-    """
-    shcb1_df = df[df.symbol.str.startswith('SH100')]
-    shcb2_df = df[df.symbol.str.startswith('SH110')]
-    shcb3_df = df[df.symbol.str.startswith('SH112')]
-    shcb4_df = df[df.symbol.str.startswith('SH113')]
-    szcb_df = df[df.symbol.str.startswith('SZ12')]
-
-    return pd.concat([shcb1_df, shcb2_df, shcb3_df, shcb4_df, szcb_df], axis=0)
+    if symbol_type == 'ALL' and market == 'ALL':
+        return df
+    if symbol_type not in FILTER_DICT:
+        symbol_type = 'ALL'
+    if market in FILTER_DICT[symbol_type]:
+        pat = FILTER_DICT[symbol_type][market]
+    else:
+        pat = '|'.join(FILTER_DICT[symbol_type].values())
+    return df[df.symbol.str.contains(pat)]
