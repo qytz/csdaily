@@ -42,6 +42,7 @@ class DataApp(FinApp):
             stock: 沪深股票
             cb: 可转债
             eft: ETF基金
+            fenji: 分级基金
 
         https://xueqiu.com/stock/cata/stocklist.json
         https://xueqiu.com/fund/quote/list.json
@@ -101,6 +102,11 @@ class DataApp(FinApp):
             params['type'] = 135
             params['orderBy'] = 'percent'
             quotes_url = 'https://xueqiu.com/fund/quote/list.json'
+        elif data_type == 'fenji':
+            params['parent_type'] = 1
+            params['type'] = 14
+            params['orderBy'] = 'percent'
+            quotes_url = 'https://xueqiu.com/fund/quote/list.json'
 
         logger.info('start download xueqiu daily quotes for %s...', data_type)
         while curr_page <= page_cnt:
@@ -115,6 +121,11 @@ class DataApp(FinApp):
                     break
                 total_cnt = resp_json['count']['count']
             elif data_type in ('etf',):
+                if 'error_code' in resp_json:
+                    logger.error('Get daily quotes for %s failed: %s', data_type, resp_json)
+                    break
+                total_cnt = resp_json['count']
+            elif data_type in ('fenji',):
                 if 'error_code' in resp_json:
                     logger.error('Get daily quotes for %s failed: %s', data_type, resp_json)
                     break
@@ -152,6 +163,9 @@ class DataApp(FinApp):
             df = await self.get_daily_stocks_xq(session, data_type='etf')
             if not df.empty:
                 df.to_sql('etf_quotes', engine, chunksize=1000, if_exists='append', index=True)
+            df = await self.get_daily_stocks_xq(session, data_type='fenji')
+            if not df.empty:
+                df.to_sql('fenji_quotes', engine, chunksize=1000, if_exists='append', index=True)
         logger.info('all data has be saved to %s', db_file)
 
     def main(self, *args):
